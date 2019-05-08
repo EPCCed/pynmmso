@@ -2,6 +2,7 @@ import random
 import math
 import numpy as np
 import nmmso.swarm as s
+from nmmso.listeners import MultiListener
 from nmmso.sequential_fitness_caller import SequentialFitnessCaller
 
 
