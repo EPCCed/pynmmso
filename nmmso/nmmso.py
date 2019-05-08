@@ -13,10 +13,9 @@ class ModeResult:
 
 class Nmmso:
 
-    def __init__(self, problem, swarm_size, max_evol=100, tol_val=1e-06,
+    def __init__(self, problem, swarm_size=-1, max_evol=100, tol_val=1e-06,
                  fitness_caller=SequentialFitnessCaller()):
 
-        self.swarm_size = swarm_size
         self.problem = problem
         self.max_evol = max_evol if max_evol > 0 else 100
 
@@ -29,6 +28,12 @@ class Nmmso:
         assert np.all(self.mn < self.mx), "Problem lower bound must be less than upper bound for all dimensions"
 
         self.num_dimensions = len(self.mn)
+        
+        if swarm_size < 1:
+            self.swarm_size = 4 + math.floor(3 * math.log(self.num_dimensions))
+        else:
+            self.swarm_size = swarm_size
+        
         self.converged_modes = 0
         self.next_swarm_id = 1
         self.evaluations = 0
