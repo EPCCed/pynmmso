@@ -52,7 +52,7 @@ class SwarmTests(unittest.TestCase):
         s2 = swarm.Swarm(2, 10, BasicProblem())
         s2.mode_location = np.array([0.1, 0.9])
 
-        self.assertAlmostEqual(s1.distance_to(s2), np.sqrt(0.1**2 + 0.4**2))
+        self.assertAlmostEqual(s1.distance_to(s2), np.sqrt(0.1 ** 2 + 0.4 ** 2))
 
     @staticmethod
     def add_particle_to_swarm(swarm, index, history_location, history_value, pbest_location, pbest_value, velocity):
@@ -179,10 +179,8 @@ class SwarmTests(unittest.TestCase):
         y = 0.4*0.4*2
         s.new_location = new_location
 
-        result_mode_shift, result_y = s.evaluate(y)
+        s.evaluate(y)
 
-        self.assertEqual(result_mode_shift, 1)
-        self.assertEqual(result_y, y)
         self.assertAlmostEqual(s.mode_value, y)
         np.testing.assert_array_almost_equal(s.mode_location, new_location)
 
@@ -209,10 +207,8 @@ class SwarmTests(unittest.TestCase):
         y = 0.4*0.4*2
         s.new_location = new_location
 
-        result_mode_shift, result_y = s.evaluate(y)
+        s.evaluate(y)
 
-        self.assertEqual(result_mode_shift, 0)
-        self.assertEqual(result_y, y)
         self.assertAlmostEqual(s.mode_value, original_y)
         np.testing.assert_array_almost_equal(s.mode_location, original_mode_location)
 

@@ -41,7 +41,7 @@ class NmmsoTests(unittest.TestCase):
         my_nmmso.swarms.add(s1)
         my_nmmso.swarms.add(s2)
 
-        my_nmmso.merge_swarms()
+        my_nmmso._merge_swarms()
 
         # Merge to give only one active mode
         self.assertEqual(len(my_nmmso.swarms), 1)
@@ -70,7 +70,7 @@ class NmmsoTests(unittest.TestCase):
         my_nmmso.swarms.add(s1)
 
         # there's only 1 swarm, so merging shouldn't do anything
-        my_nmmso.merge_swarms()
+        my_nmmso._merge_swarms()
 
         self.assertEqual(len(my_nmmso.swarms), 1)  # there should still be only 1 swarm
         self.assertEqual(s1.number_of_particles, 2)  # nothing should have changed....
@@ -90,7 +90,7 @@ class NmmsoTests(unittest.TestCase):
         s1.changed = False
         s2.changed = False
 
-        my_nmmso.merge_swarms()
+        my_nmmso._merge_swarms()
 
         self.assertEqual(len(my_nmmso.swarms), 2)  # there should still be 2 swarms
         self.assertEqual(s1.number_of_particles, 2)  # nothing should have changed....
@@ -131,7 +131,7 @@ class NmmsoTests(unittest.TestCase):
         my_nmmso.swarms.add(s1)
         my_nmmso.swarms.add(s2)
 
-        my_nmmso.merge_swarms()
+        my_nmmso._merge_swarms()
         self.assertEqual(len(my_nmmso.swarms), 1)
 
         # That active mode should have 5 particles
@@ -179,7 +179,7 @@ class NmmsoTests(unittest.TestCase):
         my_nmmso.swarms.add(s1)
         my_nmmso.swarms.add(s2)
 
-        my_nmmso.merge_swarms()
+        my_nmmso._merge_swarms()
         self.assertEqual(len(my_nmmso.swarms), 1)
 
         # That active mode should have 5 particles
@@ -225,7 +225,7 @@ class NmmsoTests(unittest.TestCase):
         my_nmmso.swarms.add(s1)
         my_nmmso.swarms.add(s2)
 
-        my_nmmso.merge_swarms()
+        my_nmmso._merge_swarms()
         self.assertEqual(len(my_nmmso.swarms), 1)
 
         # That active mode should have 5 particles
@@ -271,7 +271,7 @@ class NmmsoTests(unittest.TestCase):
         my_nmmso.swarms.add(s1)
         my_nmmso.swarms.add(s2)
 
-        my_nmmso.merge_swarms()
+        my_nmmso._merge_swarms()
         self.assertEqual(len(my_nmmso.swarms), 1)
 
         # That active mode should have 5 particles
@@ -349,7 +349,7 @@ class NmmsoTests(unittest.TestCase):
 
         mock_random_sample.return_value = np.array([0.3, 0.9])
 
-        my_nmmso.random_new()
+        my_nmmso._random_new()
 
         self.assertEqual(len(my_nmmso.swarms), 1)
         swarm = next(iter(my_nmmso.swarms))
@@ -382,11 +382,11 @@ class NmmsoTests(unittest.TestCase):
         s2.mode_location = np.array([0.02, 0.12])
         s3.mode_location = np.array([0.03, 0.13])
 
-        my_nmmso.add_swarm(s1)
-        my_nmmso.add_swarm(s2)
-        my_nmmso.add_swarm(s3)
+        my_nmmso._add_swarm(s1)
+        my_nmmso._add_swarm(s2)
+        my_nmmso._add_swarm(s3)
 
-        my_nmmso.evolve()
+        my_nmmso._evolve()
 
         self.assertEqual(len(my_nmmso.swarms), 4)
 
@@ -413,9 +413,9 @@ class NmmsoTests(unittest.TestCase):
         s3.mode_location = np.array([0.03, 0.13])
         s3.mode_value = 20.0
 
-        my_nmmso.add_swarm(s1)
-        my_nmmso.add_swarm(s2)
-        my_nmmso.add_swarm(s3)
+        my_nmmso._add_swarm(s1)
+        my_nmmso._add_swarm(s2)
+        my_nmmso._add_swarm(s3)
 
         # Mock call to random.random to specify that the option of choosing the fittest is to be used
         random_random_mock.return_value = 0.2
@@ -426,7 +426,7 @@ class NmmsoTests(unittest.TestCase):
         # Mock call in Swarm.UNI to select to crossover 2nd element but not first
         random_rand_mock.return_value = np.array([0.1, 0.6])
 
-        my_nmmso.evolve()
+        my_nmmso._evolve()
 
         self.assertEqual(len(my_nmmso.swarms), 4)
 
@@ -473,12 +473,12 @@ class NmmsoTests(unittest.TestCase):
         s4.mode_value = sum(s4.mode_location*s4.mode_location)
         s4.shifted_loc = 0
 
-        my_nmmso.add_swarm(s1)
-        my_nmmso.add_swarm(s2)
-        my_nmmso.add_swarm(s3)
-        my_nmmso.add_swarm(s4)
+        my_nmmso._add_swarm(s1)
+        my_nmmso._add_swarm(s2)
+        my_nmmso._add_swarm(s3)
+        my_nmmso._add_swarm(s4)
 
-        number_of_new_locations = my_nmmso.evaluate_new_locations(set([s1, s2]))
+        number_of_new_locations = my_nmmso._evaluate_new_locations(set([s1, s2]))
 
         # Test the changed flag
         self.assertEqual(s1.changed, True)
@@ -529,13 +529,13 @@ class NmmsoTests(unittest.TestCase):
         my_nmmso = nmmso.Nmmso(problem, 4, tol_val=0.2, max_evol=10)
         my_nmmso.swarms = set()
 
-        my_nmmso.add_swarm(s1)
-        my_nmmso.add_swarm(s2)
+        my_nmmso._add_swarm(s1)
+        my_nmmso._add_swarm(s2)
 
         mock_randrange.return_value = 3
         mock_usp.return_value = [np.array([0.02, 0.03])]
 
-        number_of_new_samples = my_nmmso.hive()
+        number_of_new_samples = my_nmmso._hive()
 
         self.assertEqual(len(my_nmmso.swarms), 3)
 
@@ -606,13 +606,13 @@ class NmmsoTests(unittest.TestCase):
         my_nmmso = nmmso.Nmmso(problem, 4, tol_val=0.2, max_evol=10)
         my_nmmso.swarms = set()
 
-        my_nmmso.add_swarm(s1)
-        my_nmmso.add_swarm(s2)
+        my_nmmso._add_swarm(s1)
+        my_nmmso._add_swarm(s2)
 
         mock_randrange.return_value = 3
         mock_usp.return_value = [np.array([20, 20])]  # huge numbers so will be out of bounds and rejected
         mock_random_random.return_value = np.array([0.33, 0.44])
-        number_of_new_samples = my_nmmso.hive()
+        number_of_new_samples = my_nmmso._hive()
 
         self.assertEqual(len(my_nmmso.swarms), 3)
 
@@ -683,12 +683,12 @@ class NmmsoTests(unittest.TestCase):
         my_nmmso = nmmso.Nmmso(problem, 4, tol_val=0.2, max_evol=10)
         my_nmmso.swarms = set()
 
-        my_nmmso.add_swarm(s1)
-        my_nmmso.add_swarm(s2)
+        my_nmmso._add_swarm(s1)
+        my_nmmso._add_swarm(s2)
 
         mock_randrange.return_value = 0
 
-        number_of_new_samples = my_nmmso.hive()
+        number_of_new_samples = my_nmmso._hive()
 
         self.assertEqual(number_of_new_samples, 1)
 
@@ -724,12 +724,12 @@ class NmmsoTests(unittest.TestCase):
         my_nmmso = nmmso.Nmmso(problem, 4, tol_val=0.2, max_evol=10)
         my_nmmso.swarms = set()
 
-        my_nmmso.add_swarm(s1)
-        my_nmmso.add_swarm(s2)
+        my_nmmso._add_swarm(s1)
+        my_nmmso._add_swarm(s2)
 
         mock_randrange.return_value = 3
 
-        number_of_new_samples = my_nmmso.hive()
+        number_of_new_samples = my_nmmso._hive()
 
         self.assertEqual(number_of_new_samples, 1)
 
@@ -755,8 +755,8 @@ class NmmsoTests(unittest.TestCase):
 
         s = set()
 
-        t1 = nmmso.Nmmso.create_swarm_tuple(s1,s2)
-        t2 = nmmso.Nmmso.create_swarm_tuple(s1,s2)
+        t1 = nmmso.Nmmso._create_swarm_tuple(s1, s2)
+        t2 = nmmso.Nmmso._create_swarm_tuple(s1, s2)
 
         s.add(t1)
         s.add(t2)

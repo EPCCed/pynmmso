@@ -7,13 +7,69 @@ from nmmso.sequential_fitness_caller import SequentialFitnessCaller
 
 
 class ModeResult:
+    """
+    Contains a mode result.
+
+    Parameters
+    ----------
+
+    location: Numpy array
+        Location of this mode in parameter space.
+
+    value: float
+        Fitness score of this mode.
+
+    Attributes
+    ----------
+
+    location : Numpy array
+        Location of this mode in parameter space.
+
+    value : float
+        Fitness score of this mode.
+
+    """
     def __init__(self, location, value):
         self.location = location
         self.value = value
 
 
 class Nmmso:
+    """
+    Niching Migratory Multi-Swarm Optimser.
 
+    Parameters
+    ----------
+
+    problem :
+        Instance of the problem class. Must implement get_bounds and fitness functions.
+
+    swarm_size : int
+        The maximum number of particles in a swarm. The default is -1 which specifies
+        the number of particles will be 4 + floor(3*log(D)), where D is the number of
+        dimensions of the problem.
+
+    max_evol : int
+        Maximum number of swarms that are updated in each iteration. The default is
+        100.
+
+    tol_val: float
+        Tolerance of Euclidean distance between swarms. Swarms whose distance is below
+        this threshold will be merged. Default value is  1e-06.
+
+    fitness_caller :
+        Used to specify various approaches to parallelism. Default is to use no parallelism.
+
+    Attributes
+    ----------
+
+    evaluations: int
+        Number of evaluations of the fitness function that have been performed so far.
+
+    swarms:  Set of Swarm objects
+        The currently active swarms.
+
+    """
     def __init__(self, problem, swarm_size=-1, max_evol=100, tol_val=1e-06,
                  fitness_caller=SequentialFitnessCaller()):
 
@@ -21,20 +77,23 @@ class Nmmso:
         self.max_evol = max_evol if max_evol > 0 else 100
 
         self.tol_val = tol_val
-        self.mn, self.mx = problem.get_bounds()
-        self.mn = np.array(self.mn)  # convert to numpy array
-        self.mx = np.array(self.mx)  # convert to numpy array
+        self.min, self.max = problem.get_bounds()
+        self.min = np.array(self.min)  # convert to numpy array
+        self.max = np.array(self.max)  # convert to numpy array
 
         # Validate the input bounds
-        assert np.all(self.mn < self.mx), "Problem lower bound must be less than upper bound for all dimensions"
+        assert np.all(len(self.min) == len(self.max)), \
+            "Lower bounds list must be the same length as the upper bounds list."
+        assert np.all(self.min < self.max), \
+            "Problem lower bound must be less than upper bound for all dimensions."
 
-        self.num_dimensions = len(self.mn)
-        
+        self.num_dimensions = len(self.min)
+
         if swarm_size < 1:
             self.swarm_size = 4 + math.floor(3 * math.log(self.num_dimensions))
         else:
             self.swarm_size = swarm_size
-        
+
         self.converged_modes = 0
         self.next_swarm_id = 1
         self.evaluations = 0
@@ -49,13 +108,20 @@ class Nmmso:
         self.fitness_caller = fitness_caller
         self.fitness_caller.set_problem(self.problem)
 
-        self.all_found = False
-        self.convergence_evaluation = None
-        self.benchmarking = False
-
         self.listener = None
 
     def add_listener(self, listener):
+        """
+        Add a listener object that will receive notifications of events that occurs
+        during the optimisation process.
+
+        Parameters
+        ----------
+
+        listener : subclass of nmmso.listeners.BaseListener
+            Listener object to receive notification of events.
+
+        """
         if self.listener is None:
             self.listener = MultiListener()
 
@@ -63,6 +129,28 @@ class Nmmso:
         listener.set_nmmso(self)
 
     def run(self, max_evaluations):
+        """
+        Runs is the optimisation algorithm until the specified number of fitness
+        evaluations has been exceeded.
+
+        If the algorithm has already been run it will continue from where it
+        left off.
+
+        Parameters
+        ----------
+
+        max_evaluations : int
+            The maximum number of fitness evaluations.  The aglorithm may execute
+            more evaluations that this number but will stop at the end of the
+            iteration when this limit is exceeded.
+
+        Returns
+        -------
+
+        list of ModeResult
+            All the modes found by the algorithm.
+
+        """
         while self.evaluations < max_evaluations:
             self.iterate()
 
@@ -72,6 +160,15 @@ class Nmmso:
         return self.get_result()
 
     def get_result(self):
+        """
+        Obtains the modes found by the algorithm.
+
+        Returns
+        -------
+
+        list of ModeResult
+            All the modes found by the algorithm.
+        """
         has_remap_parameters_function = False
         remap_func = getattr(self.problem, "remap_parameters", None)
         if callable(remap_func):
@@ -86,27 +183,32 @@ class Nmmso:
         return result
 
     def iterate(self):
+        """
+        Executes a single iteration of the algorithm.
+
+        """
         if self.listener is not None:
             self.listener.iteration_started()
 
         if self.evaluations == 0:
-            swarm = self.new_swarm()
+            swarm = self._new_swarm()
             swarm.set_initial_location()
             swarm.evaluate_first()
-            self.add_swarm(swarm)
+            self._add_swarm(swarm)
             if self.listener is not None:
                 self.listener.swarm_created_at_random(swarm)
             self.evaluations = 0
-            number_of_evol_modes = 0
-            number_rand_modes = 1
+            num_of_evol_modes = 0
+            num_rand_modes = 1
         else:
             # create speculative new swarm, either at random in design space, or via crossover
-            if random.random() < 0.5 or len(self.swarms) == 1 or len(self.mx) == 1 or self.max_evol == 1:
-                number_of_evol_modes = 0
-                number_rand_modes = self.random_new()  # this currently *always* returns 1
+            if random.random() < 0.5 or \
+                    len(self.swarms) == 1 or len(self.max) == 1 or self.max_evol == 1:
+                num_of_evol_modes = 0
+                num_rand_modes = self._random_new()  # this currently *always* returns 1
             else:
-                number_rand_modes = 0
-                number_of_evol_modes = self.evolve()
+                num_rand_modes = 0
+                num_of_evol_modes = self._evolve()
 
         if self.listener is not None:
             self.listener.merging_started()
@@ -114,7 +216,7 @@ class Nmmso:
         # See if modes should be merged together
         num_of_mid_evals = 0
         while sum([mode.changed for mode in self.swarms]) > 0:
-            merge_evals = self.merge_swarms()
+            merge_evals = self._merge_swarms()
             num_of_mid_evals = num_of_mid_evals + merge_evals
 
         if self.listener is not None:
@@ -129,7 +231,8 @@ class Nmmso:
         if len(self.swarms) > self.max_evol:
             if np.random.random() < 0.5:
                 # select the fittest
-                swarms_to_increment = sorted(self.swarms, key=lambda x: x.mode_value, reverse=True)[0:limit]
+                swarms_to_increment = \
+                    sorted(self.swarms, key=lambda x: x.mode_value, reverse=True)[0:limit]
             else:
                 # select at random
                 swarms_to_increment = random.sample(self.swarms, limit)
@@ -142,7 +245,7 @@ class Nmmso:
             swarm.increment()
 
         # evaluate new member/new location of swarm member
-        number_of_new_locations = self.evaluate_new_locations(swarms_to_increment)
+        num_of_new_locations = self._evaluate_new_locations(swarms_to_increment)
 
         if self.listener is not None:
             self.listener.incrementing_swarms_ended()
@@ -151,75 +254,52 @@ class Nmmso:
         # swarm (if detected to be on another peak)
         if self.listener is not None:
             self.listener.hiving_swams_started()
-        number_of_hive_samples = self.hive()
+        num_of_hive_samples = self._hive()
         if self.listener is not None:
             self.listener.hiving_swarms_ended()
 
-        # update the total number of function evaluations used, with those required at each of the algorithm stages
+        # update the total number of function evaluations used, with those
+        # required at each of the algorithm stages
         self.evaluations = self.evaluations + \
                            num_of_mid_evals + \
-                           number_of_new_locations + \
-                           number_of_evol_modes + \
-                           number_rand_modes + \
-                           number_of_hive_samples
+                           num_of_new_locations + \
+                           num_of_evol_modes + \
+                           num_rand_modes + \
+                           num_of_hive_samples
 
-        self.total_mid_evals        += num_of_mid_evals
-        self.total_new_locations += number_of_new_locations
-        self.total_evol_modes    += number_of_evol_modes
-        self.total_rand_modes       += number_rand_modes
-        self.total_hive_samples  += number_of_hive_samples
+        self.total_mid_evals += num_of_mid_evals
+        self.total_new_locations += num_of_new_locations
+        self.total_evol_modes += num_of_evol_modes
+        self.total_rand_modes += num_rand_modes
+        self.total_hive_samples += num_of_hive_samples
 
         if self.listener is not None:
-            self.listener.iteration_ended(number_of_new_locations,num_of_mid_evals,number_of_evol_modes,number_rand_modes,number_of_hive_samples)
+            self.listener.iteration_ended(
+                num_of_new_locations, num_of_mid_evals, num_of_evol_modes,
+                num_rand_modes, num_of_hive_samples)
 
-        if self.benchmarking and self.all_found is False:
-            self.find_convergence()
-
-    def find_convergence(self):
-
-        #
-        # this is to help find the convergence rate. We need to know how quickly the global optima are found
-        #  - this is different to just returning the swarms at the end because most of the work of the algorithm
-        #    could just be finding a slightly more optimal solution from an already optimal solution!
-        #
-        # we need to know at which evaluation all global optima have been found
-        #   although, actually, 'evaluation' refers to 'number of times the objective function is evaluated',
-        #   I think, rather than the actual iterations of the algorithm...
-        #
-
-        global_optima_fitness = self.problem.f.get_fitness_goptima()
-        n_global_optima = self.problem.f.get_no_goptima()
-
-        accuracy = 1e-4
-        n_fittest = sum([abs(swarm.mode_value - global_optima_fitness) <= accuracy for swarm in self.swarms])
-
-        if n_fittest == n_global_optima:
-            self.all_found = True
-            self.convergence_evaluation = self.evaluations
-
-    def merge_swarms(self):
+    def _merge_swarms(self):
 
         # Only concern ourselves with modes that have actually shifted, or are new
         # since the last generation, as no need to check others
         swarms_changed = list(filter(lambda x: x.changed, self.swarms))
-        self.reset_changed_flags()
-        
+        self._reset_changed_flags()
+
         n = len(swarms_changed)
-        
+
         closest_swarms = set()
 
         number_of_mid_evals = 0
 
-        if n >= 1 and len(self.swarms) > 1:  # only compare if there is a changed mode, and more than one mode in system
+        # only compare if there is a changed mode, and more than one mode in system
+        if n >= 1 and len(self.swarms) > 1:
             for swarm in swarms_changed:
-                
-                closest_swarm, d = swarm.find_nearest(self.swarms)
-                tuple_of_swarms = Nmmso.create_swarm_tuple(swarm, closest_swarm)
+                closest_swarm, _ = swarm.find_nearest(self.swarms)
+                tuple_of_swarms = Nmmso._create_swarm_tuple(swarm, closest_swarm)
                 closest_swarms.add(tuple_of_swarms)
-                
                 if swarm.number_of_particles == 1:
                     swarm.initialise_new_swarm_velocities()
-            
+
             to_merge = set()
             number_of_mid_evals = 0
 
@@ -229,14 +309,14 @@ class Nmmso:
                     to_merge.add((swarm1, swarm2, True))
                 else:
                     # otherwise merge if midpoint is fitter
-                    # print("Doing mid_eval for {} and {}".format(swarm1.id, swarm2.id))
-                    mid_loc = 0.5 * (swarm1.mode_location - swarm2.mode_location) + swarm2.mode_location
+                    mid_loc = 0.5 * (swarm1.mode_location - swarm2.mode_location) + \
+                              swarm2.mode_location
                     self.fitness_caller.add(mid_loc, (swarm1, swarm2))
                     number_of_mid_evals += 1
 
             # Get the results from the fitness caller
             for loc, y, userdata in self.fitness_caller.evaluate():
-                swarm1, swarms2 = userdata
+                swarm1, swarm2 = userdata
                 if self.listener is not None:
                     self.listener.location_evaluated(loc, y)
 
@@ -249,8 +329,10 @@ class Nmmso:
             # Merge the swarms - it is possible that we get one swarm involved in two merges.
             # In such situation depending on order we can get three combos:
             #   2 -> 1 and 3 -> 1  : do two merges into swarm 1, swarms 2 and 3 are deleted
-            #   2 -> 1 and 3 -> 2  : merge 2 into 1, swarms 2 and 3 are deleted (3's particles go to 2 but it is pointless)
-            #   3 -> 2 and 2 -> 1  : all good, 2 and 3 are deleted but 3's particles have a chance of reaching swarm 1
+            #   2 -> 1 and 3 -> 2  : merge 2 into 1, swarms 2 and 3 are deleted (3's
+            #                        particles go to 2 but it is pointless)
+            #   3 -> 2 and 2 -> 1  : all good, 2 and 3 are deleted but 3's particles have a
+            #                        chance of reaching swarm 1
             for swarm1, swarm2, are_close in to_merge:
                 # print('Merging {} and {}'.format(swarm1.id, swarm2.id))
                 if swarm1.mode_value > swarm2.mode_value:
@@ -280,27 +362,28 @@ class Nmmso:
             [swarm] = self.swarms
             swarm.set_arbitrary_distance()
 
-        return number_of_mid_evals  # keep it consistent with the matlab for now (even though it's hardcoded!)
+        return number_of_mid_evals
 
     @staticmethod
-    def distance_to(location1, location2):
+    def _distance_to(location1, location2):
         """Euclidean distance between two locations"""
         return np.linalg.norm(location1-location2)
 
     @staticmethod
-    def create_swarm_tuple(swarm1, swarm2):
-        """Create swarm tuples in a consistent way so we don't have (a,b) and (b,a) as separate keys"""
+    def _create_swarm_tuple(swarm1, swarm2):
+        """Create swarm tuples in a consistent way so we don't have (a,b) and
+        (b,a) as separate keys"""
         if swarm1.id < swarm2.id:
             tuple_of_swarms = (swarm1, swarm2)
         else:
             tuple_of_swarms = (swarm2, swarm1)
         return tuple_of_swarms
-        
-    def reset_changed_flags(self):
+
+    def _reset_changed_flags(self):
         for mode in self.swarms:
             mode.changed = False
 
-    def evaluate_new_locations(self, swarm_subset):
+    def _evaluate_new_locations(self, swarm_subset):
         """Evaluates the new locations of all swarms in the given subset of swarms."""
 
         # clear changed flag of all swarms (not just this subset)
@@ -318,28 +401,30 @@ class Nmmso:
 
         return len(swarm_subset)
 
-    def evolve(self):
+    def _evolve(self):
         """Evolves a new swarm by crossing over two existing swarms."""
         candidate_swarms = self.swarms
 
         if len(candidate_swarms) > self.max_evol and random.random() < 0.5:
             # if have a lot of swarms occasionally reduce the candidate set to be the fittest ones
-            candidate_swarms = sorted(candidate_swarms, key=lambda x: x.mode_value, reverse=True)[:self.max_evol]
+            candidate_swarms = \
+                sorted(candidate_swarms, key=lambda x: x.mode_value, reverse=True)[:self.max_evol]
 
         # select two at random from the candidate swarms
         swarms_to_cross = random.sample(candidate_swarms, 2)
 
-        swarm = self.new_swarm()
+        swarm = self._new_swarm()
         swarm.initialise_with_uniform_crossover(swarms_to_cross[0], swarms_to_cross[1])
-        self.add_swarm(swarm)
+        self._add_swarm(swarm)
 
         if self.listener is not None:
-            self.listener.swarm_created_from_crossover(swarm, swarms_to_cross[0], swarms_to_cross[1])
+            self.listener.swarm_created_from_crossover(
+                swarm, swarms_to_cross[0], swarms_to_cross[1])
 
         number_of_new_modes = 1
         return number_of_new_modes
 
-    def hive(self):
+    def _hive(self):
 
         # Comments by CW:
         #  - some of this probably could be put into the swarm class, but we would then need to pass
@@ -350,7 +435,8 @@ class Nmmso:
 
         limit = min(self.max_evol, len(self.swarms))
 
-        # first identify those swarms who are at capacity, and therefore may be considered for splitting off a member
+        # first identify those swarms who are at capacity, and therefore may be
+        # considered for splitting off a member
         candidates = random.sample(self.swarms, limit)
 
         candidates = {x for x in candidates if x.number_of_particles >= self.swarm_size}
@@ -368,7 +454,7 @@ class Nmmso:
             # only look at splitting off member who is greater than tol_value
             # distance away -- otherwise will be merged right in again at the
             # next iteration
-            if Nmmso.distance_to(particle_location, swarm.mode_location) > self.tol_val:
+            if Nmmso._distance_to(particle_location, swarm.mode_location) > self.tol_val:
 
                 mid_loc = 0.5 * (swarm.mode_location - particle_location) + particle_location
 
@@ -379,7 +465,7 @@ class Nmmso:
                 # if valley between, then hive off the old swarm member to create new swarm
                 if mid_loc_val < particle_value:
 
-                    new_swarm = self.new_swarm()
+                    new_swarm = self._new_swarm()
 
                     # allocate new
                     new_swarm.mode_location = particle_location
@@ -394,7 +480,7 @@ class Nmmso:
                     new_swarm.changed = True
                     new_swarm.converged = False
 
-                    self.add_swarm(new_swarm)
+                    self._add_swarm(new_swarm)
 
                     # remove from existing swarm and replace with mid_eval
                     swarm.history_locations[k, :] = mid_loc
@@ -402,15 +488,18 @@ class Nmmso:
                     swarm.pbest_locations[k, :] = mid_loc
                     swarm.pbest_values[k] = mid_loc_val
 
-                    temp_vel = self.mn-1
-                    d = Nmmso.distance_to(swarm.mode_location, particle_location)
+                    temp_vel = self.min - 1
+                    d = Nmmso._distance_to(swarm.mode_location, particle_location)
                     reject = 0
-                    while np.any(temp_vel < self.mn) or np.any(temp_vel > self.mx):
-                        temp_vel = swarm.mode_location + Nmmso.uniform_sphere_points(1, self.num_dimensions)[0] * (d/2)
+                    while np.any(temp_vel < self.min) or np.any(temp_vel > self.max):
+                        temp_vel = swarm.mode_location + \
+                                   Nmmso.uniform_sphere_points(1, self.num_dimensions)[0] * (d / 2)
 
                         reject += 1
                         if reject > 20:
-                            temp_vel = np.random.random(self.num_dimensions) * (self.mx - self.mn) + self.mn
+                            temp_vel = \
+                                np.random.random(self.num_dimensions) * (self.max - self.min) + \
+                                self.min
 
                     swarm.velocities[k, :] = temp_vel
 
@@ -424,17 +513,17 @@ class Nmmso:
 
         return number_of_new_samples
 
-    def random_new(self):
+    def _random_new(self):
         number_rand_modes = 1
 
-        x = np.random.random_sample(np.shape(self.mx)) * (self.mx - self.mn) + self.mn
+        x = np.random.random_sample(np.shape(self.max)) * (self.max - self.min) + self.min
 
-        new_swarm = self.new_swarm()
+        new_swarm = self._new_swarm()
         new_swarm.changed = True
         new_swarm.converged = False
         new_swarm.new_location = x
-        new_swarm.evaluate_first() 
-        self.add_swarm(new_swarm)
+        new_swarm.evaluate_first()
+        self._add_swarm(new_swarm)
 
         if self.listener is not None:
             self.listener.swarm_created_at_random(new_swarm)
@@ -443,51 +532,43 @@ class Nmmso:
 
     @staticmethod
     def uniform_sphere_points(n, d):
+        """
+        Constructs uniform sphere points.
+
+        Internal algorithm unity function.  Not to be called by users.
+
+        Parameters:
+        -----------
+
+        n : int
+            The number of points to construct
+
+        d : int
+            The number of dimensions of each point.
+
+        Returns:
+        numpy array
+            2D array of uniform sphere points.
+
+        """
 
         import operator
 
         z = np.random.normal(size=(n, d))
 
-        # Modified code by Chris: I think this does the same as the Matlab now
-        # using explicit function names rather than shorthand symbols;
-        # I have no strong feelings on this but was suggested that this might make more readable by showing it's
-        # all element-wise instead of matrix operations (perhaps performance issues?)
-
         # keepdims arg seems important; matlab explicitly seems to do this
         r1 = np.sqrt(np.sum(pow(z, 2), 1, keepdims=True))
         reps = np.tile(r1, (1, d))
-        # using the function to make clear that it's element wise division (/ symbol sometimes used for mrdivide)
+        # using the function to make clear that it's element wise division
+        # (/ symbol sometimes used for mrdivide)
         x = np.divide(z, reps)
         r = pow(np.random.rand(n, 1), (operator.truediv(1, d)))
         res = np.multiply(x, np.tile(r, (1, d)))  # np.multiply is element-wise
         return res
 
-    def add_swarm(self, swarm):
+    def _add_swarm(self, swarm):
         self.swarms.add(swarm)
         self.next_swarm_id += 1
 
-    def new_swarm(self):
+    def _new_swarm(self):
         return s.Swarm(self.next_swarm_id, self.swarm_size, self.problem, self.listener)
-
-    def print_state(self):
-        print("="*70)
-
-        print(""
-              "Number of evaluations: {}  "
-              "mid evals = {} "
-              "new locations {} "
-              "evol modes {} "
-              "rand modes {} "
-              "hive samples {}".format(
-                self.evaluations,
-                self.total_mid_evals,
-                self.total_new_locations,
-                self.total_evol_modes,
-                self.total_rand_modes,
-                self.total_hive_samples))
-
-        self.fitness_caller.print_stats()
-        print("Number of swarms: {}".format(len(self.swarms)))
-
-        for swarm in self.swarms:
-            print("  {} : {} -> {}".format(swarm.id, swarm.mode_location, swarm.mode_value))

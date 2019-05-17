@@ -1,10 +1,25 @@
+from nmmso.listeners.base_listener import BaseListener
 
-class MultiListener:
+
+class MultiListener(BaseListener):
+    """
+    Listener that contains multiple listeners and calls them for each event.
+    """
 
     def __init__(self):
+        super().__init__()
         self.listeners = []
 
     def add_listener(self, listener):
+        """
+        Adds a new listener.
+
+        Arguments
+        ---------
+
+        listener
+            The listener to add.
+        """
         self.listeners.append(listener)
 
     def set_nmmso(self, nmmso):
@@ -75,11 +90,12 @@ class MultiListener:
         for listener in self.listeners:
             listener.hiving_swarms_ended()
 
-    def iteration_ended(self, n_new_locations, n_mid_evals, n_evol_modes, n_rand_modes, n_hive_samples):
+    def iteration_ended(
+            self, n_new_locations, n_mid_evals, n_evol_modes, n_rand_modes, n_hive_samples):
         for listener in self.listeners:
-            listener.iteration_ended(n_new_locations, n_mid_evals, n_evol_modes, n_rand_modes, n_hive_samples)
+            listener.iteration_ended(
+                n_new_locations, n_mid_evals, n_evol_modes, n_rand_modes, n_hive_samples)
 
     def max_evaluations_reached(self):
         for listener in self.listeners:
             listener.max_evaluations_reached()
-
