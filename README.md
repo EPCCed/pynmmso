@@ -1,4 +1,4 @@
-# Niching Migratory Multi-Swarm Optimser (NMMSO)
+# Niching Migratory Multi-Swarm Optimser for Pythin (pynmmso)
 
 Python implementation of the Niching Migratory Multi-Swarm Optimser, described
 in: "*Running Up Those Hills: Multi-Modal Search with the Niching Migratory Multi-Swarm Optimiser*"
