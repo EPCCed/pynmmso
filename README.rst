@@ -1,4 +1,6 @@
-# Niching Migratory Multi-Swarm Optimser for Python (pynmmso)
+***********************************************************
+Niching Migratory Multi-Swarm Optimser for Python (pynmmso)
+***********************************************************
 
 Python implementation of the Niching Migratory Multi-Swarm Optimser, described
 in: "*Running Up Those Hills: Multi-Modal Search with the Niching Migratory Multi-Swarm Optimiser*"
@@ -9,17 +11,17 @@ Please reference this paper if you undertake work utilising this code.
 
 Documentation for pynmmso can be found at: https://github.com/EPCCed/pynmmso/wiki/NMMSO
 
-## Install pynmmso
+Install pynmmso
+===============
 
 The Python implementation of NMMSO requires Python 3 and Numpy (https://www.numpy.org/).  
 
-You can install `pynmmso` using `pip`:
+You can install pynmmso using pip::
 
-```
-pip install pynmmso
-```
+    pip install pynmmso
 
-## Using NMMSO
+Using NMMSO
+===========
 
 We will demonstrate using NMMSO to solve a one-dimensional optimisation problem. The function will we optimise is:
 
