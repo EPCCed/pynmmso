@@ -39,8 +39,8 @@ The ``fitness`` function takes one argument. This argument is a 1D Numpy array c
 
 The ``get_bounds`` function takes no arguments and returns two Python lists that define the bounds of the parameter search.  The first list specifies the minimum value for each parameter, the second list specifies the maximum value for each parameter.  As our problem is one dimensional there will only be one value in each list.
 
-The implementation of our problem in Python is therefore::
-
+The implementation of our problem in Python is therefore:
+::
     class MyProblem:
        @staticmethod
        def fitness(params):
@@ -51,36 +51,36 @@ The implementation of our problem in Python is therefore::
        def get_bounds():
           return [-2], [3]
 
-The following code uses NMMSO to solve this problem. The ``Nmmso`` object is constructed such that each swarm the algorithm creates will have a maximum of 10 particles and algorithm will terminate at the end of the iteration where the number of fitness evaluations exceeds 1000.  When run the algorithm returns a list of objects that contain the location and value for each of the discovered modes.
+The following code uses NMMSO to solve this problem. The ``Nmmso`` object is constructed with an instance of the problem class.  The algorithm is then run and will stop at the end of the iteration where the number of fitness function evaluations exceeds the given
+amount. When run the algorithm returns a list of objects that contain the location and value for each of the discovered modes.
 
-```
-from pynmmso import Nmmso
+.. code-block:: python
 
-
-class MyProblem:
-    @staticmethod
-    def fitness(params):
-        x = params[0]
-        return -x**4 + x**3 + 3 * x**2
-
-    @staticmethod
-    def get_bounds():
-        return [-2], [3]
+  from pynmmso import Nmmso
 
 
-def main():
-    number_of_fitness_evaluations = 1000
+  class MyProblem:
+      @staticmethod
+      def fitness(params):
+          x = params[0]
+          return -x**4 + x**3 + 3 * x**2
 
-    nmmso = Nmmso(MyProblem())
-    my_result = nmmso.run(number_of_fitness_evaluations)
-    for mode_result in my_result:
-        print("Mode at {} has value {}".format(mode_result.location, mode_result.value))
+      @staticmethod
+      def get_bounds():
+          return [-2], [3]
 
 
-if __name__ == "__main__":
-    main()
-```
+  def main():
+      number_of_fitness_evaluations = 1000
 
+      nmmso = Nmmso(MyProblem())
+      my_result = nmmso.run(number_of_fitness_evaluations)
+      for mode_result in my_result:
+          print("Mode at {} has value {}".format(mode_result.location, mode_result.value))
+
+
+  if __name__ == "__main__":
+      main()
 
 
 Running this code produces output similar to the following:
