@@ -1,5 +1,5 @@
 import math
-from nmmso.listeners.base_listener import BaseListener
+from pynmmso.listeners.base_listener import BaseListener
 
 
 class ParallelPredictorListener(BaseListener):

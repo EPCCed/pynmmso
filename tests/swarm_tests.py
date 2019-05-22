@@ -5,7 +5,7 @@
 import unittest
 from unittest import mock
 import numpy as np
-import nmmso.swarm as swarm
+import pynmmso.swarm as swarm
 import math
 
 
@@ -122,7 +122,7 @@ class SwarmTests(unittest.TestCase):
             self.assertAlmostEqual(s1.pbest_values[i], (ii+1)*10.0+1.0)
             np.testing.assert_array_almost_equal(s1.velocities[i, :], np.array([ii+1.5, ii+1.6]))
 
-    @mock.patch('nmmso.Nmmso.uniform_sphere_points')
+    @mock.patch('pynmmso.Nmmso.uniform_sphere_points')
     def test_initialise_new_swarm_velocities_without_rejection(self, mock_uniform_sphere_points):
         """Tests initialise_new_swarm function where the uniform sphere approach works."""
         mock_uniform_sphere_points.return_value = [np.array([0.5,0.6])]
@@ -136,7 +136,7 @@ class SwarmTests(unittest.TestCase):
         np.testing.assert_array_almost_equal(s.velocities[0, :], np.array([0.135, 0.13]))
 
     @mock.patch('numpy.random.rand')
-    @mock.patch('nmmso.Nmmso.uniform_sphere_points')
+    @mock.patch('pynmmso.Nmmso.uniform_sphere_points')
     def test_initialise_new_swarm_velocities_with_rejection(self, mock_uniform_sphere_points, mock_random_rand):
         """Tests initialise_new_swarm code to ensure the rejections occur and the second approach is used."""
         mock_random_rand.return_value = np.array([0.9, 0.2])
@@ -313,7 +313,7 @@ class SwarmTests(unittest.TestCase):
         self.assertEqual(s.converged, False)
         self.assertEqual(s.changed, True)
 
-    @mock.patch('nmmso.Nmmso.uniform_sphere_points')
+    @mock.patch('pynmmso.Nmmso.uniform_sphere_points')
     def test_increment_when_add_new_particle(self, mock_uniform_sphere_points):
         """Tests increment method when a new particle is added."""
         my_swarm = swarm.Swarm(1, 10, BasicProblem())
@@ -335,7 +335,7 @@ class SwarmTests(unittest.TestCase):
         np.testing.assert_array_almost_equal(my_swarm.velocities[1, :], np.array([0.1+0.2*0.5/2.0, 0.2+0.1*0.5/2.0]))
 
     @mock.patch('numpy.random.rand')
-    @mock.patch('nmmso.Nmmso.uniform_sphere_points')
+    @mock.patch('pynmmso.Nmmso.uniform_sphere_points')
     def test_increment_when_add_new_particle_and_initial_velocities_are_rejected(self, mock_uniform_sphere_points, mock_random_rand):
         """Tests increment method when a new particle is added and initial velocities are rejected."""
         my_swarm = swarm.Swarm(1, 10, BasicProblem())

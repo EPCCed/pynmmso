@@ -7,8 +7,8 @@ import math
 import unittest
 from unittest import mock
 import numpy as np
-import nmmso.swarm as swarm
-import nmmso
+import pynmmso.swarm as swarm
+import pynmmso as nmmso
 import swarm_tests
 
 
@@ -500,7 +500,7 @@ class NmmsoTests(unittest.TestCase):
 
         self.assertEqual(number_of_new_locations, 2)  # 2 swarms were in the evaluate call
 
-    @mock.patch('nmmso.Nmmso.uniform_sphere_points')
+    @mock.patch('pynmmso.Nmmso.uniform_sphere_points')
     @mock.patch('random.randrange')
     def test_hive_when_midpoint_in_valley(self, mock_randrange, mock_usp):
 
@@ -577,7 +577,7 @@ class NmmsoTests(unittest.TestCase):
         np.testing.assert_allclose(original_swarm.velocities[3, :], vel)
 
     @mock.patch('numpy.random.random')
-    @mock.patch('nmmso.Nmmso.uniform_sphere_points')
+    @mock.patch('pynmmso.Nmmso.uniform_sphere_points')
     @mock.patch('random.randrange')
     def test_hive_when_midpoint_in_valley_velocity_rejected(self, mock_randrange, mock_usp, mock_random_random):
 

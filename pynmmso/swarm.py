@@ -1,6 +1,6 @@
 import random
 import numpy as np
-import nmmso
+import pynmmso as nmmso
 
 
 class Swarm:

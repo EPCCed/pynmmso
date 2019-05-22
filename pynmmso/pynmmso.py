@@ -1,9 +1,9 @@
 import random
 import math
 import numpy as np
-import nmmso.swarm as s
-from nmmso.listeners import MultiListener
-from nmmso.sequential_fitness_caller import SequentialFitnessCaller
+import pynmmso.swarm as s
+from pynmmso.listeners import MultiListener
+from pynmmso.sequential_fitness_caller import SequentialFitnessCaller
 
 
 class ModeResult:

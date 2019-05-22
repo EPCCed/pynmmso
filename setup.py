@@ -4,7 +4,7 @@ def readme():
     with open('README.md') as f:
         return f.read()
         
-setup(name='nmmso',
+setup(name='pynmmso',
       version='0.1',
       description='Multi-Modal Search with the Niching Migratory Multi-Swarm Optimizer',
       long_description=readme(),
@@ -20,7 +20,7 @@ setup(name='nmmso',
       author='Ally Hume',
       author_email='a.hume@epcc.ed.ac.uk',
       license='MIT',
-      packages=['nmmso','nmmso.wrappers','nmmso.listeners'],
+      packages=['pynmmso','pynmmso.wrappers','pynmmso.listeners'],
       install_requires=[
           'numpy',
       ],
