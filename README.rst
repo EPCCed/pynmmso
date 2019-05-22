@@ -29,7 +29,7 @@ We will demonstrate using NMMSO to solve a one-dimensional optimisation problem.
 
 Plotting this function with x in the range [-2, 3] gives:
 
-![Graph of -x^4 + x^3 + 3x^2 with two peaks](https://github.com/EPCCed/pynmmso/wiki/images/1D-function.png)
+.. image:: https://github.com/EPCCed/pynmmso/wiki/images/1D-function.png
 
 This function has two optima (one global and one local).  We can use NMMSO to find these optima.
 
