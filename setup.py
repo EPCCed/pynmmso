@@ -1,7 +1,7 @@
 from setuptools import setup
 
 def readme():
-    with open('README.md') as f:
+    with open('README.rst') as f:
         return f.read()
         
 setup(name='pynmmso',
@@ -16,7 +16,7 @@ setup(name='pynmmso',
         'Operating System :: OS Independent',
       ],
       keywords='optimization, optimisation, optimizer, optimiser, multimodal, multi-modal, GA, genetic',
-      url='https://github.com/EPCCed/NMMSO/wiki/NMMSO',
+      url='https://github.com/EPCCed/pynmmso/wiki/NMMSO',
       author='Ally Hume',
       author_email='a.hume@epcc.ed.ac.uk',
       license='MIT',
