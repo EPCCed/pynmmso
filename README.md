@@ -27,7 +27,7 @@ We will demonstrate using NMMSO to solve a one-dimensional optimisation problem.
 
 Plotting this function with x in the range [-2, 3] gives:
 
-!(https://github.com/EPCCed/pynmmso/wiki/images/1D-function.png)
+![](https://github.com/EPCCed/pynmmso/wiki/images/1D-function.png)
 
 This function has two optima (one global and one local).  We can use NMMSO to find these optima.
 
