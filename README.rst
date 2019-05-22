@@ -88,5 +88,6 @@ Running this code produces output similar to the following:
   Mode at [1.65586203] has value 5.247909824656198
   Mode at [-0.90586887] has value 1.0450589249496887
 
+It has correctly found the two peaks in the graph.
 
-Further documentation is available at: https://github.com/EPCCed/pynmmso/wiki/NMMSO
+Further documentation is describing more advanced usage is available at: https://github.com/EPCCed/pynmmso/wiki/NMMSO
