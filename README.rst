@@ -33,27 +33,25 @@ Plotting this function with x in the range [-2, 3] gives:
 
 This function has two optima (one global and one local).  We can use NMMSO to find these optima.
 
-First we need to write Python code that captures the problem we wish to solve. Problems must be written as a Python class that implements two functions: `fitness` and `get_bounds`.
+First we need to write Python code that captures the problem we wish to solve. Problems must be written as a Python class that implements two functions: ``fitness`` and ``get_bounds``.
 
-The `fitness` function takes one argument. This argument is a 1D Numpy array containing a value for each parameter of the problem.  Since our problem is one dimensional this array will contain a single value. The function must return a single scalar value which is the *fitness* for the given parameter values.  This is where we implement the function to be optimised.
+The ``fitness`` function takes one argument. This argument is a 1D Numpy array containing a value for each parameter of the problem.  Since our problem is one dimensional this array will contain a single value. The function must return a single scalar value which is the *fitness* for the given parameter values.  This is where we implement the function to be optimised.
 
-The ```get_bounds``` function takes no arguments and returns two Python lists that define the bounds of the parameter search.  The first list specifies the minimum value for each parameter, the second list specifies the maximum value for each parameter.  As our problem is one dimensional there will only be one value in each list.
+The ``get_bounds`` function takes no arguments and returns two Python lists that define the bounds of the parameter search.  The first list specifies the minimum value for each parameter, the second list specifies the maximum value for each parameter.  As our problem is one dimensional there will only be one value in each list.
 
-The implementation of our problem in Python is therefore:
+The implementation of our problem in Python is therefore::
 
-```
-class MyProblem:
-    @staticmethod
-    def fitness(params):
-        x = params[0]
-        return -x**4 + x**3 + 3 * x**2
+    class MyProblem:
+       @staticmethod
+       def fitness(params):
+           x = params[0]
+           return -x**4 + x**3 + 3 * x**2
 
-    @staticmethod
-    def get_bounds():
-        return [-2], [3]
-```
+       @staticmethod
+       def get_bounds():
+          return [-2], [3]
 
-The following code uses NMMSO to solve this problem. The `Nmmso` object is constructed such that each swarm the algorithm creates will have a maximum of 10 particles and algorithm will terminate at the end of the iteration where the number of fitness evaluations exceeds 1000.  When run the algorithm returns a list of objects that contain the location and value for each of the discovered modes.
+The following code uses NMMSO to solve this problem. The ``Nmmso`` object is constructed such that each swarm the algorithm creates will have a maximum of 10 particles and algorithm will terminate at the end of the iteration where the number of fitness evaluations exceeds 1000.  When run the algorithm returns a list of objects that contain the location and value for each of the discovered modes.
 
 ```
 from pynmmso import Nmmso
