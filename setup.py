@@ -5,7 +5,7 @@ def readme():
         return f.read()
         
 setup(name='pynmmso',
-      version='0.1',
+      version='0.3',
       description='Multi-Modal Search with the Niching Migratory Multi-Swarm Optimizer',
       long_description=readme(),
       classifiers=[
