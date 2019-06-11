@@ -285,6 +285,9 @@ class Swarm:
 
         y = self.problem.fitness(self.new_location)
 
+        if not np.isscalar(y):
+            raise ValueError("Problem class's fitness method must return a scalar value.")
+
         if self.listener is not None:
             self.listener.location_evaluated(self.new_location, y)
 

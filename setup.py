@@ -23,6 +23,7 @@ setup(name='pynmmso',
       packages=['pynmmso','pynmmso.wrappers','pynmmso.listeners'],
       install_requires=[
           'numpy',
+          'multiprocess'
       ],
       test_suite='nose.collector',
       tests_require=['nose'],

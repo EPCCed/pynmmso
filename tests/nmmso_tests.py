@@ -11,6 +11,29 @@ import pynmmso.swarm as swarm
 import pynmmso as nmmso
 import swarm_tests
 
+class ProblemThatReturnsNonScalar:
+    def fitness(self, x):
+        return np.array([1])
+
+    @staticmethod
+    def get_bounds():
+        return [-1, -1], [1, 1]
+
+class ProblemWithDifferentMinAndMaxDimensions:
+    def fitness(self, x):
+        return 1
+
+    @staticmethod
+    def get_bounds():
+        return [-1, -1], [1, 1, 3]
+
+class ProblemWithInvalidBounds:
+    def fitness(self, x):
+        return 1
+
+    @staticmethod
+    def get_bounds():
+        return [0,10], [1,3]
 
 class NmmsoTests(unittest.TestCase):
 
@@ -762,3 +785,21 @@ class NmmsoTests(unittest.TestCase):
         s.add(t2)
 
         self.assertEqual(len(s),1)
+
+    def test_error_if_fitness_function_returns_non_scalar(self):
+        my_nmmso = nmmso.Nmmso(ProblemThatReturnsNonScalar())
+        with self.assertRaises(ValueError):
+            my_nmmso.run(5)
+
+    def test_error_if_min_and_max_different_dimensions(self):
+        with self.assertRaises(ValueError):
+            my_nmmso = nmmso.Nmmso(ProblemWithDifferentMinAndMaxDimensions())
+
+    def test_error_if_min_bound_is_larger_than_max(self):
+        with self.assertRaises(ValueError):
+            my_nmmso = nmmso.Nmmso(ProblemWithInvalidBounds())
+
+
+
+
+

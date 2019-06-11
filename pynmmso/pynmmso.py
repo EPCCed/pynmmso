@@ -82,10 +82,10 @@ class Nmmso:
         self.max = np.array(self.max)  # convert to numpy array
 
         # Validate the input bounds
-        assert np.all(len(self.min) == len(self.max)), \
-            "Lower bounds list must be the same length as the upper bounds list."
-        assert np.all(self.min < self.max), \
-            "Problem lower bound must be less than upper bound for all dimensions."
+        if not np.all(len(self.min) == len(self.max)):
+            raise ValueError("Lower bounds list must be the same length as the upper bounds list.")
+        if not np.all(self.min < self.max):
+            raise ValueError("Problem lower bound must be less than upper bound for all dimensions.")
 
         self.num_dimensions = len(self.min)
 
