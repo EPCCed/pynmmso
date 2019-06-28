@@ -59,6 +59,9 @@ class MultiprocessorFitnessCaller:
         self.task_queue = Queue()
         self.result_queue = Queue()
 
+    def __enter__(self):
+        return self
+
     def set_problem(self, problem):
         """
         Sets the problem object to use to calculate the fitness.
@@ -122,6 +125,9 @@ class MultiprocessorFitnessCaller:
 
         self.tasks = []
         return results
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.finish()
 
     def finish(self):
         """
