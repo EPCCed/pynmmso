@@ -25,7 +25,7 @@ Using NMMSO
 
 We will demonstrate using NMMSO to solve a one-dimensional optimisation problem. The function will we optimise is:
 
--x<sup>4</sup> + x<sup>3</sup> + 3x<sup>2</sup>
+-x\ :sup:`4` + x\ :sup:`3` + 3x\ :sup:`2`
 
 Plotting this function with x in the range [-2, 3] gives:
 
