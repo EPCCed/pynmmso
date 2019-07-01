@@ -94,4 +94,4 @@ Running this code produces output similar to the following:
 
 It has correctly found the two peaks in the graph.
 
-Further documentation is describing more advanced usage is available at: https://github.com/EPCCed/pynmmso/wiki/NMMSO
+Further documentation is describing more advanced usage is available at: https://github.com/EPCCed/pynmmso/wiki
