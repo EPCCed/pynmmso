@@ -25,7 +25,7 @@ Using NMMSO
 
 We will demonstrate using NMMSO to solve a one-dimensional optimisation problem. The function will we optimise is:
 
--x^4 + x^3 + 3x^2
+-x\ :sup:`4` + x\ :sup:`3` + 3x\ :sup:`2`
 
 Plotting this function with x in the range [-2, 3] gives:
 
@@ -94,4 +94,4 @@ Running this code produces output similar to the following:
 
 It has correctly found the two peaks in the graph.
 
-Further documentation is describing more advanced usage is available at: https://github.com/EPCCed/pynmmso/wiki/NMMSO
+Further documentation is describing more advanced usage is available at: https://github.com/EPCCed/pynmmso/wiki
