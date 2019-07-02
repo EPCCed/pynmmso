@@ -127,9 +127,9 @@ class MultiprocessorFitnessCaller:
         return results
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self.finish()
+        self.close()
 
-    def finish(self):
+    def close(self):
         """
         Terminates the fitness caller.
         """
