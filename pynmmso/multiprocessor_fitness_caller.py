@@ -89,7 +89,7 @@ class MultiprocessorFitnessCaller:
             Location to be evaluated.
 
         userdata
-            Userdata to be returned with the evaluation result.
+            User data to be returned with the evaluation result.
         """
         self.tasks.append([location, userdata])
 
