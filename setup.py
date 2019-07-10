@@ -5,7 +5,7 @@ def readme():
         return f.read()
         
 setup(name='pynmmso',
-      version='0.3',
+      version='1.0.0',
       description='Multi-Modal Search with the Niching Migratory Multi-Swarm Optimizer',
       long_description=readme(),
       classifiers=[
@@ -16,7 +16,7 @@ setup(name='pynmmso',
         'Operating System :: OS Independent',
       ],
       keywords='optimization, optimisation, optimizer, optimiser, multimodal, multi-modal, GA, genetic',
-      url='https://github.com/EPCCed/pynmmso/wiki/NMMSO',
+      url='https://github.com/EPCCed/pynmmso/wiki',
       author='Ally Hume',
       author_email='a.hume@epcc.ed.ac.uk',
       license='MIT',
