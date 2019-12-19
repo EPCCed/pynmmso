@@ -135,7 +135,7 @@ class Swarm:
                     if i_min.size > 0:
                         temp_vel[i_min] = \
                             np.random.rand(i_min.size) * \
-                            (self.history_locations[self.shifted_loc, i_min] - self.mn[i_min])
+                            (self.history_locations[self.shifted_loc, i_min] - self.mn[i_min]) * -1
 
                 new_location = self.history_locations[self.shifted_loc, :] + temp_vel
                 reject = reject + 1
